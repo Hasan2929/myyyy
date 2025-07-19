@@ -3,58 +3,217 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>لوحة التحكم - الادمن</title>
+  <title>لوحة تحكم الادمن</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      padding: 20px;
-      background: #f9fafb;
+      background-color: #121212;
+      color: #ddd;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0; padding: 20px;
+      min-height: 100vh;
     }
     header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      background: #0078d7;
-      color: white;
-      padding: 10px 20px;
+      background: #1f1f1f;
+      padding: 15px 25px;
       border-radius: 8px;
+      margin-bottom: 30px;
     }
-    h1 {
+    header h1 {
       margin: 0;
+      font-weight: 700;
+      color: #0af;
+      font-size: 1.8rem;
     }
     #logoutBtn {
       background: #e74c3c;
       border: none;
       color: white;
-      padding: 8px 15px;
+      padding: 10px 20px;
+      font-weight: 600;
       border-radius: 6px;
       cursor: pointer;
-      font-weight: bold;
+      transition: background-color 0.3s ease;
     }
     #logoutBtn:hover {
       background: #c0392b;
     }
-    /* محتويات الادمن بسيطة */
-    .content {
-      margin-top: 30px;
+    #addProgramBtn {
+      background: #0af;
+      border: none;
+      color: white;
+      padding: 12px 25px;
+      font-weight: 600;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-bottom: 20px;
+      transition: background-color 0.3s ease;
+    }
+    #addProgramBtn:hover {
+      background: #0087d1;
+    }
+    .program-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill,minmax(280px,1fr));
+      gap: 20px;
+    }
+    .program-card {
+      background: #222;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 0 8px #0af88a88;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: #eee;
+      transition: transform 0.2s ease;
+    }
+    .program-card:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 14px #0af;
+    }
+    .program-card img {
+      width: 120px;
+      height: 120px;
+      object-fit: contain;
+      border-radius: 10px;
+      margin-bottom: 15px;
+      background: white;
+      padding: 10px;
+    }
+    .program-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: #0af;
+      text-align: center;
+    }
+    .program-category {
+      font-size: 0.9rem;
+      color: #0afaaaff;
+      margin-bottom: 12px;
+      font-weight: 600;
+    }
+    .program-desc {
+      font-size: 0.9rem;
+      color: #aaa;
+      flex-grow: 1;
+      margin-bottom: 15px;
+      text-align: center;
+      min-height: 45px;
+    }
+    .btn-group {
+      display: flex;
+      gap: 10px;
+    }
+    button.action-btn {
+      flex-grow: 1;
+      padding: 10px 12px;
+      border-radius: 6px;
+      border: none;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      color: white;
+    }
+    button.edit-btn {
+      background: #0af;
+    }
+    button.edit-btn:hover {
+      background: #0087d1;
+    }
+    button.delete-btn {
+      background: #e74c3c;
+    }
+    button.delete-btn:hover {
+      background: #c0392b;
+    }
+    #statusMsg {
+      margin-bottom: 20px;
+      font-weight: 600;
+      text-align: center;
+      color: #0af;
+    }
+    /* مودال النموذج */
+    #programFormModal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      background: rgba(0,0,0,0.7);
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+    }
+    #programFormModal.active {
+      display: flex;
+    }
+    #programForm {
+      background: #222;
+      padding: 20px;
+      border-radius: 10px;
+      width: 320px;
+      color: #eee;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      box-shadow: 0 0 12px #0af;
+    }
+    #programForm select, 
+    #programForm input[type="text"], 
+    #programForm textarea {
+      padding: 10px;
+      border-radius: 6px;
+      border: none;
+      background: #333;
+      color: #eee;
+      font-size: 1rem;
+      resize: none;
+    }
+    #programForm button {
+      cursor: pointer;
     }
   </style>
 </head>
 <body>
 
 <header>
-  <h1>لوحة التحكم - الادمن</h1>
+  <h1>لوحة تحكم الادمن</h1>
   <button id="logoutBtn">تسجيل خروج</button>
 </header>
 
-<div class="content">
-  <p>مرحباً بك في صفحة الادمن. هنا تضع أدوات التحكم.</p>
-  <!-- أضف هنا كود الأدمن مثل رفع البرامج وتعديلها -->
+<button id="addProgramBtn">+ إضافة برنامج جديد</button>
+
+<div id="statusMsg"></div>
+
+<div class="program-grid" id="programsContainer"></div>
+
+<!-- نموذج إضافة / تعديل -->
+<div id="programFormModal">
+  <form id="programForm">
+    <h2 id="formTitle">إضافة برنامج جديد</h2>
+    <input type="text" id="programName" placeholder="اسم البرنامج" required />
+    <select id="programCategory" required>
+      <option value="" disabled selected>اختر القسم</option>
+      <option value="windows">Windows</option>
+      <option value="android">Android</option>
+      <option value="ios">iOS</option>
+    </select>
+    <input type="text" id="programImage" placeholder="رابط صورة البرنامج" required />
+    <textarea id="programDesc" rows="4" placeholder="وصف البرنامج" required></textarea>
+    <div style="display:flex; gap:10px; justify-content:flex-end;">
+      <button type="button" id="cancelBtn" style="background:#555; color:#eee; border:none; padding:10px 20px; border-radius:6px;">إلغاء</button>
+      <button type="submit" id="saveBtn" style="background:#0af; border:none; color:#fff; padding:10px 20px; border-radius:6px;">حفظ</button>
+    </div>
+  </form>
 </div>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
-  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
+  import { getFirestore, collection, getDocs, addDoc, doc, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
+  import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyDrhCl3WrlF70bDCslUyl0i-EhRkw0rlLY",
@@ -63,27 +222,141 @@
     storageBucket: "program-site.appspot.com",
     messagingSenderId: "893265540999",
     appId: "1:893265540999:web:55c95ff45e2e1cbd8f0522",
-    measurementId: "G-95N9P2QG2C"
+    measurementId: "G-95N9P2G2C"
   };
 
   const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
   const auth = getAuth(app);
 
-  // التحقق من حالة الدخول
-  onAuthStateChanged(auth, (user) => {
+  onAuthStateChanged(auth, user => {
     if (!user) {
-      // إذا لم يكن المستخدم مسجل دخول، توجه لصفحة تسجيل الدخول
       window.location.href = "login.html";
     }
   });
 
-  // زر تسجيل الخروج
   const logoutBtn = document.getElementById('logoutBtn');
+  const addProgramBtn = document.getElementById('addProgramBtn');
+  const container = document.getElementById('programsContainer');
+  const statusMsg = document.getElementById('statusMsg');
+  const modal = document.getElementById('programFormModal');
+  const formTitle = document.getElementById('formTitle');
+  const programForm = document.getElementById('programForm');
+  const programNameInput = document.getElementById('programName');
+  const programCategoryInput = document.getElementById('programCategory');
+  const programImageInput = document.getElementById('programImage');
+  const programDescInput = document.getElementById('programDesc');
+  const cancelBtn = document.getElementById('cancelBtn');
+
+  let editDocId = null;
+
   logoutBtn.addEventListener('click', () => {
     signOut(auth).then(() => {
       window.location.href = "login.html";
     });
   });
+
+  addProgramBtn.addEventListener('click', () => {
+    editDocId = null;
+    formTitle.textContent = "إضافة برنامج جديد";
+    programForm.reset();
+    modal.classList.add('active');
+  });
+
+  cancelBtn.addEventListener('click', () => {
+    modal.classList.remove('active');
+  });
+
+  programForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const newProgram = {
+      name: programNameInput.value.trim(),
+      category: programCategoryInput.value.trim().toLowerCase(),
+      image: programImageInput.value.trim(),
+      description: programDescInput.value.trim(),
+    };
+
+    try {
+      if(editDocId) {
+        await updateDoc(doc(db, "programs", editDocId), newProgram);
+        statusMsg.textContent = "تم تعديل البرنامج بنجاح!";
+      } else {
+        await addDoc(collection(db, "programs"), newProgram);
+        statusMsg.textContent = "تم إضافة البرنامج بنجاح!";
+      }
+      modal.classList.remove('active');
+      loadPrograms();
+    } catch (err) {
+      alert("حدث خطأ، حاول مرة أخرى.");
+      console.error(err);
+    }
+  });
+
+  async function loadPrograms() {
+    container.innerHTML = "جارٍ تحميل البرامج...";
+    statusMsg.textContent = "";
+
+    try {
+      const snapshot = await getDocs(collection(db, "programs"));
+      container.innerHTML = "";
+      if(snapshot.empty) {
+        container.innerHTML = "<p>لا توجد برامج حالياً.</p>";
+        return;
+      }
+
+      snapshot.forEach(docSnap => {
+        const data = docSnap.data();
+        const programCard = document.createElement('div');
+        programCard.className = 'program-card';
+
+        programCard.innerHTML = `
+          <img src="${data.image}" alt="${data.name}" />
+          <div class="program-title">${data.name}</div>
+          <div class="program-category">القسم: ${data.category}</div>
+          <div class="program-desc">${data.description}</div>
+          <div class="btn-group">
+            <button class="action-btn edit-btn">تعديل</button>
+            <button class="action-btn delete-btn">حذف</button>
+          </div>
+        `;
+
+        const editBtn = programCard.querySelector('.edit-btn');
+        const deleteBtn = programCard.querySelector('.delete-btn');
+
+        editBtn.addEventListener('click', () => {
+          editDocId = docSnap.id;
+          formTitle.textContent = "تعديل البرنامج";
+          programNameInput.value = data.name;
+          programCategoryInput.value = data.category;
+          programImageInput.value = data.image;
+          programDescInput.value = data.description;
+          modal.classList.add('active');
+        });
+
+        deleteBtn.addEventListener('click', async () => {
+          if(confirm(`هل تريد حذف البرنامج "${data.name}"؟`)) {
+            try {
+              await deleteDoc(doc(db, "programs", docSnap.id));
+              statusMsg.textContent = `تم حذف البرنامج "${data.name}" بنجاح.`;
+              loadPrograms();
+            } catch(err) {
+              alert("خطأ في الحذف.");
+              console.error(err);
+            }
+          }
+        });
+
+        container.appendChild(programCard);
+      });
+
+    } catch (error) {
+      container.innerHTML = "<p>حدث خطأ أثناء تحميل البرامج.</p>";
+      console.error(error);
+    }
+  }
+
+  loadPrograms();
 </script>
 
 </body>
