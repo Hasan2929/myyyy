@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>لوحة التحكم - الادمن</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background: #f9fafb;
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #0078d7;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 8px;
+    }
+    h1 {
+      margin: 0;
+    }
+    #logoutBtn {
+      background: #e74c3c;
+      border: none;
+      color: white;
+      padding: 8px 15px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    #logoutBtn:hover {
+      background: #c0392b;
+    }
+    /* محتويات الادمن بسيطة */
+    .content {
+      margin-top: 30px;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>لوحة التحكم - الادمن</h1>
+  <button id="logoutBtn">تسجيل خروج</button>
+</header>
+
+<div class="content">
+  <p>مرحباً بك في صفحة الادمن. هنا تضع أدوات التحكم.</p>
+  <!-- أضف هنا كود الأدمن مثل رفع البرامج وتعديلها -->
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDrhCl3WrlF70bDCslUyl0i-EhRkw0rlLY",
+    authDomain: "program-site.firebaseapp.com",
+    projectId: "program-site",
+    storageBucket: "program-site.appspot.com",
+    messagingSenderId: "893265540999",
+    appId: "1:893265540999:web:55c95ff45e2e1cbd8f0522",
+    measurementId: "G-95N9P2QG2C"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+
+  // التحقق من حالة الدخول
+  onAuthStateChanged(auth, (user) => {
+    if (!user) {
+      // إذا لم يكن المستخدم مسجل دخول، توجه لصفحة تسجيل الدخول
+      window.location.href = "login.html";
+    }
+  });
+
+  // زر تسجيل الخروج
+  const logoutBtn = document.getElementById('logoutBtn');
+  logoutBtn.addEventListener('click', () => {
+    signOut(auth).then(() => {
+      window.location.href = "login.html";
+    });
+  });
+</script>
+
+</body>
+</html>

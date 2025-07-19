@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>صفحة تحميل البرنامج</title>
+  <style>
+    body {
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background: #f5f7fa;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+      color: #333;
+    }
+    .container {
+      max-width: 700px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 18px rgba(0,0,0,0.1);
+      padding: 30px;
+      text-align: center;
+    }
+    .program-image {
+      width: 200px;
+      height: 200px;
+      object-fit: contain;
+      margin-bottom: 20px;
+      border-radius: 15px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    .program-title {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 15px;
+      color: #0078d7;
+    }
+    .program-description {
+      font-size: 1.1rem;
+      color: #555;
+      margin-bottom: 30px;
+      line-height: 1.5;
+    }
+    .download-btn {
+      background-color: #0078d7;
+      color: white;
+      font-size: 1.2rem;
+      font-weight: 700;
+      padding: 14px 40px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+      transition: background-color 0.3s ease;
+      box-shadow: 0 4px 14px rgba(0, 120, 215, 0.4);
+    }
+    .download-btn:hover {
+      background-color: #005a9e;
+      box-shadow: 0 6px 18px rgba(0, 90, 158, 0.6);
+    }
+    .error-msg {
+      color: #d9534f;
+      font-weight: 600;
+      margin-top: 20px;
+    }
+    @media (max-width: 480px) {
+      .container {
+        padding: 20px;
+      }
+      .program-title {
+        font-size: 1.5rem;
+      }
+      .download-btn {
+        font-size: 1rem;
+        padding: 12px 30px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container" id="programContainer">
+    <p>جارٍ تحميل بيانات البرنامج...</p>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDrhCl3WrlF70bDCslUyl0i-EhRkw0rlLY",
+      authDomain: "program-site.firebaseapp.com",
+      projectId: "program-site",
+      storageBucket: "program-site.appspot.com",
+      messagingSenderId: "893265540999",
+      appId: "1:893265540999:web:55c95ff45e2e1cbd8f0522",
+      measurementId: "G-95N9P2QG2C"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const container = document.getElementById('programContainer');
+
+    // دالة لجلب معرف البرنامج من رابط URL
+    function getProgramId() {
+      const params = new URLSearchParams(window.location.search);
+      return params.get('id');
+    }
+
+    async function loadProgram() {
+      const id = getProgramId();
+      if (!id) {
+        container.innerHTML = `<p class="error-msg">لم يتم تحديد برنامج للعرض.</p>`;
+        return;
+      }
+
+      try {
+        const docRef = doc(db, "programs", id);
+        const docSnap = await getDoc(docRef);
+
+        if (!docSnap.exists()) {
+          container.innerHTML = `<p class="error-msg">البرنامج غير موجود.</p>`;
+          return;
+        }
+
+        const data = docSnap.data();
+
+        container.innerHTML = `
+          <img src="${data.image}" alt="${data.name}" class="program-image" />
+          <h1 class="program-title">${data.name}</h1>
+          <p class="program-description">${data.description}</p>
+          <a href="${data.download}" class="download-btn" target="_blank" rel="noopener">تحميل البرنامج</a>
+        `;
+
+      } catch (error) {
+        container.innerHTML = `<p class="error-msg">حدث خطأ أثناء تحميل بيانات البرنامج.</p>`;
+        console.error("Error loading program:", error);
+      }
+    }
+
+    loadProgram();
+  </script>
+
+</body>
+</html>

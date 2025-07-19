@@ -1,0 +1,71 @@
+/* تنسيق الهيدر العام */
+header {
+  background-color: #0078d7; /* خلفية زرقاء */
+  color: white;
+  padding: 12px 20px;
+  display: flex;
+  justify-content: space-between; /* يوزع العناصر بين اليمين واليسار */
+  align-items: center;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  font-family: Arial, sans-serif;
+}
+
+/* شعار الموقع */
+.logo {
+  font-weight: bold;
+  font-size: 24px;
+}
+
+/* تنسيق القائمة (الرابط) */
+nav {
+  display: flex;
+  align-items: center;
+  gap: 15px; /* مسافة بين الأزرار */
+}
+
+/* روابط الأقسام */
+nav a.nav-button {
+  color: white;
+  text-decoration: none;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 6px;
+  transition: background-color 0.3s ease;
+}
+
+nav a.nav-button:hover {
+  background-color: rgba(255,255,255,0.2);
+}
+
+/* شريط البحث */
+.search-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: 20px;
+}
+
+/* حقل الإدخال */
+.search-bar input {
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: none;
+  outline: none;
+  font-size: 14px;
+}
+
+/* زر البحث */
+.search-bar button {
+  background-color: #005a9e;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+}
+
+.search-bar button:hover {
+  background-color: #003f6a;
+}

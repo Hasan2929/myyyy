@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <title>تعديل البرامج | لوحة التحكم</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(to bottom, #f2f4f8, #e0e7ff);
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      color: #333;
+      margin-bottom: 30px;
+    }
+
+    select {
+      padding: 10px 15px;
+      font-size: 16px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      margin: 0 auto 30px;
+      display: block;
+    }
+
+    #programList {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
+      gap: 20px;
+      padding: 0 10px;
+    }
+
+    .program-card {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      padding: 20px;
+      transition: transform 0.2s ease;
+    }
+
+    .program-card:hover {
+      transform: translateY(-5px);
+    }
+
+    .program-card img {
+      width: 100%;
+      max-height: 180px;
+      object-fit: cover;
+      border-radius: 8px;
+      margin-bottom: 10px;
+    }
+
+    .program-card input,
+    .program-card textarea,
+    .program-card select {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 10px;
+      font-size: 15px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+
+    .program-card button {
+      background-color: #2563eb;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background 0.2s;
+    }
+
+    .program-card button:hover {
+      background-color: #1d4ed8;
+    }
+
+    @media (max-width: 500px) {
+      .program-card {
+        padding: 15px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>لوحة تعديل البرامج</h1>
+
+  <label for="categoryFilter" style="text-align:center; display:block;">اختر القسم:</label>
+  <select id="categoryFilter">
+    <option value="all">الكل</option>
+    <option value="windows">كمبيوتر</option>
+    <option value="android">أندرويد</option>
+    <option value="ios">آيفون</option>
+  </select>
+
+  <div id="programList"></div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
+    import { getFirestore, collection, getDocs, updateDoc, doc } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDrhCl3WrlF70bDCslUyl0i-EhRkw0rlLY",
+      authDomain: "program-site.firebaseapp.com",
+      projectId: "program-site",
+      storageBucket: "program-site.appspot.com",
+      messagingSenderId: "893265540999",
+      appId: "1:893265540999:web:55c95ff45e2e1cbd8f0522",
+      measurementId: "G-95N9P2QG2C"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const programsRef = collection(db, "programs");
+
+    const programList = document.getElementById("programList");
+    const categoryFilter = document.getElementById("categoryFilter");
+
+    async function loadPrograms() {
+      programList.innerHTML = "جارٍ التحميل...";
+      const snapshot = await getDocs(programsRef);
+      programList.innerHTML = "";
+
+      snapshot.forEach(docSnap => {
+        const program = docSnap.data();
+        const id = docSnap.id;
+
+        const card = document.createElement("div");
+        card.className = "program-card";
+        card.dataset.category = program.category;
+
+        card.innerHTML = `
+          <img src="${program.image || ''}" alt="صورة البرنامج" />
+          <input type="text" value="${program.name}" placeholder="اسم البرنامج" />
+          <textarea placeholder="الوصف">${program.description}</textarea>
+          <input type="text" value="${program.image}" placeholder="رابط الصورة" />
+          <input type="text" value="${program.download}" placeholder="رابط التحميل" />
+          <select>
+            <option value="windows" ${program.category === 'windows' ? 'selected' : ''}>كمبيوتر</option>
+            <option value="android" ${program.category === 'android' ? 'selected' : ''}>أندرويد</option>
+            <option value="ios" ${program.category === 'ios' ? 'selected' : ''}>آيفون</option>
+          </select>
+          <button>حفظ التعديلات</button>
+        `;
+
+        const inputs = card.querySelectorAll("input, textarea, select");
+        const saveBtn = card.querySelector("button");
+
+        saveBtn.addEventListener("click", async () => {
+          const [name, description, image, download, category] = inputs;
+          try {
+            await updateDoc(doc(db, "programs", id), {
+              name: name.value.trim(),
+              description: description.value.trim(),
+              image: image.value.trim(),
+              download: download.value.trim(),
+              category: category.value
+            });
+            alert("تم الحفظ ✅");
+          } catch (e) {
+            alert("❌ حدث خطأ أثناء الحفظ");
+            console.error(e);
+          }
+        });
+
+        programList.appendChild(card);
+      });
+
+      applyCategoryFilter();
+    }
+
+    function applyCategoryFilter() {
+      const selected = categoryFilter.value;
+      const cards = document.querySelectorAll(".program-card");
+      cards.forEach(card => {
+        if (selected === "all" || card.dataset.category === selected) {
+          card.style.display = "block";
+        } else {
+          card.style.display = "none";
+        }
+      });
+    }
+
+    categoryFilter.addEventListener("change", applyCategoryFilter);
+    loadPrograms();
+  </script>
+</body>
+</html>
